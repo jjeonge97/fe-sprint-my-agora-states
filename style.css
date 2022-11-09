@@ -79,10 +79,12 @@ h1 {
     height: 80px;
     color: #616161;
     border-radius: 10px;
+    transition: 0.3s ease-in;
 }
 
 .form__submit > input:hover {
     background-color: #f6f6f6;
+    transition: 0.3s ease-in;
 }
 
 ul {
@@ -98,6 +100,11 @@ ul {
     display: flex;
     flex-direction: row;
     min-height: 80px;
+    transition: all 0.3s ease-in-out;
+}
+
+.discussion__container:hover {
+    transform: scale(1.05);
 }
 
 .discussion__avatar--wrapper {

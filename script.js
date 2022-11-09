@@ -1,7 +1,12 @@
-// index.html을 열어서 agoraStatesDiscussions 배열 요소를 확인하세요.
-console.log(agoraStatesDiscussions); // Array(42)
-
 // convertToDiscussion은 아고라 스테이츠 데이터를 DOM으로 바꿔줍니다.
+
+let newDiscussions = [...agoraStatesDiscussions];
+
+// localStorage 에 저장하는 함수
+function savedDiscussions() {
+    localStorage.setItem('newDiscussions', JSON.stringify(newDiscussions));
+}
+
 const convertToDiscussion = (obj) => {
     const li = document.createElement('li'); // li 요소 생성
     li.className = 'discussion__container'; // 클래스 이름 지정
@@ -15,7 +20,6 @@ const convertToDiscussion = (obj) => {
 
     // 1. 아바타 영역
     const avatarImg = document.createElement('img');
-    // avatarImg.className = 'discussion__avatar--image'; //내가 아바타 이비지 클래스에 적용한 css 가 없어서 안 써도 됨
     avatarImg.src = obj.avatarUrl;
     avatarImg.alt = 'avatar of ' + obj.author;
     avatarWrapper.append(avatarImg);
@@ -29,7 +33,7 @@ const convertToDiscussion = (obj) => {
     discussionTitleLink.textContent = obj.title;
     discussionTitleLink.target = '_blank'; // 써도 되고 안 써도 되고 ?
     discussionTitle.append(discussionTitleLink);
-    // discussionContent.append(discussionTitle);
+
     const discussionInfo = document.createElement('div');
     discussionInfo.className = 'discussion__information';
     discussionInfo.textContent =
@@ -51,7 +55,7 @@ const inputStory = document.querySelector('.form__textbox > textarea');
 // submit 버튼 누르면 질문 리스트에 추가
 form.addEventListener('submit', (event) => {
     event.preventDefault();
-    const newAdd = {
+    const newObj = {
         id: 'abc',
         createdAt: new Date().toISOString(),
         title: inputTitle.value,
@@ -61,40 +65,43 @@ form.addEventListener('submit', (event) => {
         bodyHTML: inputStory.value,
         avatarUrl: 'avatar.jpeg',
     };
-    agoraStatesDiscussions.unshift(newAdd);
-    const newList = convertToDiscussion(newAdd);
+
+    // 배열 맨 첫번째로 추가
+    newDiscussions.unshift(newObj);
+    const newList = convertToDiscussion(newObj);
     ul.prepend(newList);
 
-    nputName.value = '';
+    savedDiscussions();
+
+    inputName.value = '';
     inputTitle.value = '';
     inputStory.value = '';
-
-    // if (!objArr) {
-    //     objArr = [];
-    // }
-    // objArr.unshift(newAdd);
-    // localStorage.setItem('list', JSON.stringify(newAdd));
-
-    // const data = JSON.parse(localStorage.getItem('list'));
-    // agoraStatesDiscussions.unshift(data);
-    // localStorage.setItem('list', JSON.stringify(newAdd));
 });
 
-form.addEventListener('submit', (e) => {});
+const savedDiscussion = localStorage.getItem('newDiscussions');
+
+if (savedDiscussion) {
+    const parsedDiscussion = JSON.parse(savedDiscussion);
+    newDiscussions = parsedDiscussion;
+    parsedDiscussion.forEach(convertToDiscussion);
+}
 
 // agoraStatesDiscussions 배열의 모든 데이터를 화면에 렌더링하는 함수입니다.
 const render = (element) => {
-    for (let i = 0; i < agoraStatesDiscussions.length; i += 1) {
-        element.append(convertToDiscussion(agoraStatesDiscussions[i]));
+    for (let i = 0; i < newDiscussions.length; i += 1) {
+        element.append(convertToDiscussion(newDiscussions[i]));
     }
     return;
 };
-
 // ul 요소에 agoraStatesDiscussions 배열의 모든 데이터를 화면에 렌더링합니다.
-fetch('http://localhost:4000/discussions')
-    .then((response) => response.json())
-    .then((data) => {
-        data = agoraStatesDiscussions;
-        const ul = document.querySelector('ul.discussions__container');
-        render(ul);
-    });
+const ul = document.querySelector('ul.discussions__container');
+render(ul);
+
+// fetch 사용
+// fetch('http://localhost:4000/discussions')
+//     .then((response) => response.json())
+//     .then((data) => {
+//         data = agoraStatesDiscussions;
+//         const ul = document.querySelector('ul.discussions__container');
+//         render(ul);
+//     });
